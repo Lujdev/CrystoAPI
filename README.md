@@ -5,94 +5,158 @@
 [circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
 [circleci-url]: https://circleci.com/gh/nestjs/nest
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
+<p align="center">Un framework progresivo de <a href="http://nodejs.org" target="_blank">Node.js</a> para construir aplicaciones del lado del servidor eficientes y escalables.</p>
+
+<p align="center">
 <a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
 <a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
 <a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
 <a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
 <a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
 </p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+# CrystoAPI NestJS
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+**CrystoAPI** es una API RESTful desarrollada con NestJS que proporciona cotizaciones actualizadas de criptomonedas y monedas fiat en el mercado venezolano. Recopila datos de diversas fuentes (BCV, Binance P2P, Italcambios) mediante scrapers automatizados y los unifica en una interfaz sencilla.
 
-## Project setup
+## 🚀 Características
 
-```bash
-$ pnpm install
-```
+-   **Multi-fuente**: Obtención de tasas de BCV, Binance y Italcambios.
+-   **Actualización Automática**: Tareas programadas (Cron Jobs) para sincronizar tasas cada 30 minutos.
+-   **Histórico**: Almacenamiento de historial de tasas para cálculo de variaciones (24h).
+-   **Performance**: Uso de base de datos SQLite ligera y eficiente.
+-   **Documentación**: Swagger UI integrado.
+-   **Salud del Sistema**: Endpoints de Health Check.
 
-## Compile and run the project
+## 🛠️ Instalación y Configuración
 
-```bash
-# development
-$ pnpm run start
+1.  **Clonar el repositorio**
+    ```bash
+    git clone <url-del-repositorio>
+    cd crystoapi-nestjs
+    ```
 
-# watch mode
-$ pnpm run start:dev
+2.  **Instalar dependencias**
+    ```bash
+    pnpm install
+    ```
 
-# production mode
-$ pnpm run start:prod
-```
+3.  **Configurar variables de entorno**
+    Copia el archivo de ejemplo y ajústalo según tus necesidades:
+    ```bash
+    cp .env.example .env
+    ```
 
-## Run tests
+4.  **Base de Datos**
+    El proyecto utiliza SQLite. Las migraciones se encargan de crear la estructura:
+    ```bash
+    pnpm run migration:run
+    ```
 
-```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## ▶️ Ejecución
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+# Desarrollo (con recarga automática)
+pnpm run dev
+
+# Desarrollo (modo debug)
+pnpm run dev:debug
+
+# Producción
+pnpm run build
+pnpm run start:prod
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## 📡 Documentación de la API
 
-## Resources
+La API cuenta con documentación interactiva Swagger disponible en `/docs` cuando la aplicación está corriendo (ej. `http://localhost:3000/docs`).
 
-Check out a few resources that may come in handy when working with NestJS:
+### Endpoints Principales
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+#### 1. Obtener Tasas Actuales
 
-## Support
+Obtiene el listado de todas las tasas disponibles o filtra por parámetros.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+-   **Método**: `GET`
+-   **Ruta**: `/api/v1/rates`
+-   **Parámetros (Query Params)**:
+    -   `exchange_code` (Opcional): Código del exchange (ej. `BCV`, `BINANCE_P2P`, `ITALCAMBIOS`).
+    -   `currency_pair` (Opcional): Par de monedas (ej. `USD/VES`, `USDT/VES`).
 
-## Stay in touch
+**Ejemplo de Respuesta:**
+```json
+[
+  {
+    "id": 1,
+    "exchange_code": "BCV",
+    "currency_pair": "USD/VES",
+    "buy_price": 36.5,
+    "sell_price": 36.5,
+    "spread": 0,
+    "variation_24h": 0.15,
+    "volume_24h": null,
+    "source": "api",
+    "last_updated": "2024-01-01T12:00:00.000Z"
+  }
+]
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+#### 2. Tasas por Fuente (Atajos)
 
-## License
+Endpoints directos para fuentes específicas.
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+-   **BCV**: `GET /api/v1/rates/bcv`
+-   **Binance**: `GET /api/v1/rates/binance`
+-   **Italcambios**: `GET /api/v1/rates/italcambios`
+
+Todas retornan el mismo formato de objeto `Rate`.
+
+#### 3. Health Check
+
+Verifica el estado de la API y la conexión a la base de datos.
+
+-   **Método**: `GET`
+-   **Ruta**: `/health`
+
+**Ejemplo de Respuesta:**
+```json
+{
+  "status": "ok",
+  "info": {
+    "database": {
+      "status": "up"
+    }
+  },
+  "error": {},
+  "details": {
+    "database": {
+      "status": "up"
+    }
+  }
+}
+```
+
+## 🧪 Tests
+
+```bash
+# Tests unitarios
+pnpm run test
+
+# Tests E2E
+pnpm run test:e2e
+
+# Cobertura de tests
+pnpm run test:cov
+```
+
+## 🏗️ Stack Tecnológico
+
+-   [NestJS](https://nestjs.com/) - Framework de Node.js
+-   [TypeORM](https://typeorm.io/) - ORM para TypeScript
+-   [SQLite](https://www.sqlite.org/) - Motor de base de datos
+-   [Puppeteer/Cheerio/Axios] - Scraping (según implementación de cada módulo)
+-   [Biome](https://biomejs.dev/) - Linter y Formatter
+
+## 📄 Licencia
+
+Este proyecto está bajo la licencia [MIT](LICENSE).
