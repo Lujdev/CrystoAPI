@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { AppDataSource } from './data-source';
@@ -14,10 +14,21 @@ import { AppDataSource } from './data-source';
         if (!options) {
           throw new Error('Invalid options passed');
         }
+        const logger = new Logger('DatabaseModule');
         const dataSource = await new DataSource(options).initialize();
-        // Enable WAL mode
+
+        // Enable WAL mode for better performance
         await dataSource.query('PRAGMA journal_mode = WAL');
         await dataSource.query('PRAGMA synchronous = NORMAL');
+
+        // Run pending migrations
+        const pendingMigrations = await dataSource.showMigrations();
+        if (pendingMigrations) {
+          logger.log('Running pending migrations...');
+          await dataSource.runMigrations();
+          logger.log('Migrations completed');
+        }
+
         return dataSource;
       },
     }),

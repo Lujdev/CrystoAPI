@@ -6,7 +6,7 @@ import { utilities, WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
 import 'winston-daily-rotate-file';
 
-import { AppLoggerService } from './common/logger/app-logger.service';
+import { CommonModule } from './common/common.module';
 import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './modules/health/health.module';
 import { RatesModule } from './modules/rates/rates.module';
@@ -69,13 +69,12 @@ import { SchedulerModule } from './scheduler/scheduler.module';
       ],
     }),
 
+    CommonModule,
     DatabaseModule,
     RatesModule,
     ScrapersModule,
     SchedulerModule,
     HealthModule,
   ],
-  providers: [AppLoggerService],
-  exports: [AppLoggerService],
 })
 export class AppModule {}

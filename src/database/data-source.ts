@@ -4,7 +4,7 @@ import { DataSource } from 'typeorm';
 config();
 
 export const AppDataSource = new DataSource({
-  type: 'sqlite',
+  type: 'better-sqlite3',
   database: process.env.DATABASE_PATH || 'data/crystoapi.sqlite',
   entities: [`${__dirname}/../**/*.entity{.ts,.js}`],
   migrations: [`${__dirname}/migrations/*{.ts,.js}`],
