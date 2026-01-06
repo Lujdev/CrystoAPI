@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { AppLoggerService } from '../common/logger/app-logger.service';
 import { RatesService } from '../modules/rates/rates.service';
@@ -7,7 +7,7 @@ import { BinanceScraper } from '../modules/scrapers/binance.scraper';
 import { ItalcambiosScraper } from '../modules/scrapers/italcambios.scraper';
 
 @Injectable()
-export class RateSyncService {
+export class RateSyncService implements OnModuleInit {
   private readonly logger = new Logger(RateSyncService.name);
   private isRunning = false;
 
@@ -18,6 +18,14 @@ export class RateSyncService {
     private readonly italcambiosScraper: ItalcambiosScraper,
     private readonly appLogger: AppLoggerService,
   ) {}
+
+  /**
+   * Ejecutar scraping inicial al arrancar la aplicación
+   */
+  async onModuleInit() {
+    this.logger.log('🚀 Running initial sync on startup...');
+    await this.syncAllRates();
+  }
 
   /**
    * ÚNICO CRON JOB para sincronización de todas las tasas
