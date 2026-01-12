@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { RateSyncService } from './rate-sync.service';
+import { AppLoggerService } from '../common/logger/app-logger.service';
 import { RatesService } from '../modules/rates/rates.service';
 import { BcvScraper } from '../modules/scrapers/bcv.scraper';
 import { BinanceScraper } from '../modules/scrapers/binance.scraper';
 import { ItalcambiosScraper } from '../modules/scrapers/italcambios.scraper';
-import { AppLoggerService } from '../common/logger/app-logger.service';
+import { RateSyncService } from './rate-sync.service';
 
 describe('RateSyncService', () => {
   let service: RateSyncService;
@@ -50,7 +50,7 @@ describe('RateSyncService', () => {
   describe('syncAllRates', () => {
     it('should coordinate sync of all scrapers', async () => {
       mockScraper.scrape.mockResolvedValueOnce([{ exchange_code: 'BCV', buy_price: 36 }]);
-      
+
       await service.syncAllRates();
 
       expect(mockScraper.scrape).toHaveBeenCalledTimes(3);
@@ -61,13 +61,13 @@ describe('RateSyncService', () => {
 
     it('should handle concurrency with isRunning flag', async () => {
       // Simulate slow sync
-      mockScraper.scrape.mockReturnValue(new Promise(resolve => setTimeout(resolve, 100)));
-      
+      mockScraper.scrape.mockReturnValue(new Promise((resolve) => setTimeout(resolve, 100)));
+
       const p1 = service.syncAllRates();
       const p2 = service.syncAllRates();
-      
+
       await Promise.all([p1, p2]);
-      
+
       expect(mockLogger.warn).toHaveBeenCalledWith(expect.stringContaining('already in progress'));
     });
   });

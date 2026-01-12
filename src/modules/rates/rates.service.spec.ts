@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { RatesService } from './rates.service';
 import { Rate } from './entities/rate.entity';
 import { RateHistory } from './entities/rate-history.entity';
+import { RatesService } from './rates.service';
 
 describe('RatesService', () => {
   let service: RatesService;
@@ -112,7 +112,11 @@ describe('RatesService', () => {
     });
 
     it('should update existing rate when found', async () => {
-      mockQueryRunner.manager.findOneBy.mockResolvedValue({ id: 1, exchange_code: 'BCV', currency_pair: 'USD/VES' });
+      mockQueryRunner.manager.findOneBy.mockResolvedValue({
+        id: 1,
+        exchange_code: 'BCV',
+        currency_pair: 'USD/VES',
+      });
 
       const rates = [
         {
@@ -139,13 +143,17 @@ describe('RatesService', () => {
     it('should rollback on error', async () => {
       mockQueryRunner.manager.findOneBy.mockRejectedValueOnce(new Error('DB Error'));
 
-      await expect(service.bulkUpsert([{
-        exchange_code: 'ERR',
-        currency_pair: 'X',
-        buy_price: 0,
-        source: 's',
-        synced_at: new Date()
-      }])).rejects.toThrow('DB Error');
+      await expect(
+        service.bulkUpsert([
+          {
+            exchange_code: 'ERR',
+            currency_pair: 'X',
+            buy_price: 0,
+            source: 's',
+            synced_at: new Date(),
+          },
+        ]),
+      ).rejects.toThrow('DB Error');
 
       expect(mockQueryRunner.rollbackTransaction).toHaveBeenCalled();
     });

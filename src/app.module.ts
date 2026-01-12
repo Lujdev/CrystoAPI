@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { utilities, WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
 import 'winston-daily-rotate-file';
@@ -26,8 +27,14 @@ import { SchedulerModule } from './scheduler/scheduler.module';
     // Rate Limiting
     ThrottlerModule.forRoot([
       {
-        ttl: 60,
-        limit: 100,
+        name: 'default',
+        ttl: parseInt(process.env.THROTTLE_TTL || '60', 10) * 1000, // segundos a milisegundos
+        limit: parseInt(process.env.THROTTLE_LIMIT || '30', 10),
+      },
+      {
+        name: 'history',
+        ttl: parseInt(process.env.THROTTLE_TTL || '60', 10) * 1000,
+        limit: parseInt(process.env.THROTTLE_HISTORY_LIMIT || '10', 10),
       },
     ]),
 
@@ -75,6 +82,12 @@ import { SchedulerModule } from './scheduler/scheduler.module';
     ScrapersModule,
     SchedulerModule,
     HealthModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}

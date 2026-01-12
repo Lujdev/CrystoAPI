@@ -1,6 +1,6 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { BcvScraper } from './bcv.scraper';
+import { Test, type TestingModule } from '@nestjs/testing';
 import axios from 'axios';
+import { BcvScraper } from './bcv.scraper';
 
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -34,12 +34,14 @@ describe('BcvScraper', () => {
       exchange_code: 'BCV',
       currency_pair: 'USD/VES',
       buy_price: 36.501234,
+      sell_price: 36.501234,
       source: 'bcv_scrape',
     });
     expect(results).toContainEqual({
       exchange_code: 'BCV',
       currency_pair: 'EUR/VES',
       buy_price: 39.204321,
+      sell_price: 39.204321,
       source: 'bcv_scrape',
     });
   });

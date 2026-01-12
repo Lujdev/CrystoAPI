@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, LessThan, Repository } from 'typeorm';
+import { DataSource, LessThan, MoreThanOrEqual, Repository } from 'typeorm';
+import { HistoryInterval, HistoryQueryDto } from './dto/history-query.dto';
 import { RateQueryDto } from './dto/rate-query.dto';
 import { Rate } from './entities/rate.entity';
 import { RateHistory } from './entities/rate-history.entity';
@@ -171,5 +172,129 @@ export class RatesService {
 
     this.logger.log(`🗑️ Cleanup: ${result.affected} old history records deleted`);
     return result.affected || 0;
+  }
+
+  /**
+   * Obtener historial de cotizaciones
+   */
+  async getHistory(query: HistoryQueryDto): Promise<RateHistory[]> {
+    const days = query.days || 7;
+    const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+
+    const qb = this.historyRepo
+      .createQueryBuilder('history')
+      .where('history.recorded_at >= :startDate', { startDate });
+
+    if (query.exchange_code) {
+      qb.andWhere('history.exchange_code = :code', { code: query.exchange_code });
+    }
+    if (query.currency_pair) {
+      qb.andWhere('history.currency_pair = :pair', { pair: query.currency_pair });
+    }
+
+    qb.orderBy('history.recorded_at', 'ASC');
+
+    const results = await qb.getMany();
+
+    // Si el intervalo es diario, agrupar por día
+    if (query.interval === HistoryInterval.DAILY) {
+      return this.groupByDay(results);
+    }
+
+    return results;
+  }
+
+  /**
+   * Agrupar registros por día (toma el último registro del día)
+   */
+  private groupByDay(records: RateHistory[]): RateHistory[] {
+    const grouped = new Map<string, RateHistory>();
+
+    for (const record of records) {
+      const dateKey = `${record.exchange_code}-${record.currency_pair}-${record.recorded_at.toISOString().split('T')[0]}`;
+
+      // Guardar el último registro del día (el más reciente)
+      const existing = grouped.get(dateKey);
+      if (!existing || existing.recorded_at < record.recorded_at) {
+        grouped.set(dateKey, record);
+      }
+    }
+
+    return Array.from(grouped.values()).sort(
+      (a, b) => a.recorded_at.getTime() - b.recorded_at.getTime(),
+    );
+  }
+
+  /**
+   * Obtener historial de un exchange específico
+   */
+  async getHistoryByExchange(exchangeCode: string, days = 30): Promise<RateHistory[]> {
+    return this.getHistory({
+      exchange_code: exchangeCode,
+      days,
+      interval: HistoryInterval.DAILY,
+    });
+  }
+
+  /**
+   * Obtener estadísticas del historial
+   */
+  async getHistoryStats(
+    exchangeCode: string,
+    currencyPair: string,
+    days = 30,
+  ): Promise<{
+    min: number;
+    max: number;
+    avg: number;
+    change: number;
+    changePercent: number;
+    records: number;
+  }> {
+    const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+
+    const result = await this.historyRepo
+      .createQueryBuilder('history')
+      .select('MIN(history.buy_price)', 'min')
+      .addSelect('MAX(history.buy_price)', 'max')
+      .addSelect('AVG(history.buy_price)', 'avg')
+      .addSelect('COUNT(*)', 'records')
+      .where('history.exchange_code = :code', { code: exchangeCode })
+      .andWhere('history.currency_pair = :pair', { pair: currencyPair })
+      .andWhere('history.recorded_at >= :startDate', { startDate })
+      .getRawOne();
+
+    // Obtener primer y último registro para calcular el cambio
+    const [firstRecord, lastRecord] = await Promise.all([
+      this.historyRepo.findOne({
+        where: {
+          exchange_code: exchangeCode,
+          currency_pair: currencyPair,
+          recorded_at: MoreThanOrEqual(startDate),
+        },
+        order: { recorded_at: 'ASC' },
+      }),
+      this.historyRepo.findOne({
+        where: {
+          exchange_code: exchangeCode,
+          currency_pair: currencyPair,
+          recorded_at: MoreThanOrEqual(startDate),
+        },
+        order: { recorded_at: 'DESC' },
+      }),
+    ]);
+
+    const change = firstRecord && lastRecord ? lastRecord.buy_price - firstRecord.buy_price : 0;
+    const changePercent =
+      firstRecord && firstRecord.buy_price > 0 ? (change / firstRecord.buy_price) * 100 : 0;
+
+    return {
+      min: parseFloat(result.min) || 0,
+      max: parseFloat(result.max) || 0,
+      avg: parseFloat(result.avg) || 0,
+      change: Math.round(change * 10000) / 10000,
+      changePercent: Math.round(changePercent * 100) / 100,
+      records: parseInt(result.records, 10) || 0,
+    };
   }
 }
