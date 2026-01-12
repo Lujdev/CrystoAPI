@@ -29,6 +29,7 @@ export class RatesService {
 
   /**
    * Bulk upsert de tasas - TODAS en una sola transacción
+   * Usa estrategia manual de find + save para compatibilidad con SQLite
    */
   async bulkUpsert(rates: RateData[]): Promise<number> {
     if (rates.length === 0) return 0;
@@ -39,9 +40,29 @@ export class RatesService {
 
     try {
       for (const rate of rates) {
-        await queryRunner.manager.upsert(
-          Rate,
-          {
+        // Buscar entidad existente por clave única (exchange_code + currency_pair)
+        const existing = await queryRunner.manager.findOneBy(Rate, {
+          exchange_code: rate.exchange_code,
+          currency_pair: rate.currency_pair,
+        });
+
+        if (existing) {
+          // Actualizar entidad existente manteniendo su ID
+          await queryRunner.manager.update(
+            Rate,
+            { id: existing.id },
+            {
+              buy_price: rate.buy_price,
+              sell_price: rate.sell_price,
+              spread: rate.sell_price ? rate.sell_price - rate.buy_price : undefined,
+              volume_24h: rate.volume_24h,
+              source: rate.source,
+              last_updated: rate.synced_at,
+            },
+          );
+        } else {
+          // Insertar nueva entidad
+          await queryRunner.manager.insert(Rate, {
             exchange_code: rate.exchange_code,
             currency_pair: rate.currency_pair,
             buy_price: rate.buy_price,
@@ -50,9 +71,8 @@ export class RatesService {
             volume_24h: rate.volume_24h,
             source: rate.source,
             last_updated: rate.synced_at,
-          },
-          ['exchange_code', 'currency_pair'],
-        );
+          });
+        }
       }
 
       await queryRunner.commitTransaction();
