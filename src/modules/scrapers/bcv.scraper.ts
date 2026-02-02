@@ -1,7 +1,7 @@
+import * as https from 'node:https';
 import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import * as https from 'node:https';
 import { IScraper, ScrapedRate } from './interfaces/scraper.interface';
 
 @Injectable()

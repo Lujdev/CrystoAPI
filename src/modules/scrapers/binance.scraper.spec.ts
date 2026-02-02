@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BinanceScraper } from './binance.scraper';
 import axios from 'axios';
+import { BinanceScraper } from './binance.scraper';
 
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -24,11 +24,7 @@ describe('BinanceScraper', () => {
     const mockResponse = {
       data: {
         code: '000000',
-        data: [
-          { adv: { price: '38.5' } },
-          { adv: { price: '38.7' } },
-          { adv: { price: '38.6' } },
-        ],
+        data: [{ adv: { price: '38.5' } }, { adv: { price: '38.7' } }, { adv: { price: '38.6' } }],
       },
     };
 

@@ -49,7 +49,7 @@ export class AppLoggerService implements LoggerService {
   /**
    * Log de sync
    */
-  logSync(syncId: number, message: string, data?: Record<string, any>) {
+  logSync(syncId: number, message: string, data?: Record<string, unknown>) {
     this.winstonLogger.info(message, {
       context: 'RateSync',
       syncId,
@@ -60,7 +60,7 @@ export class AppLoggerService implements LoggerService {
   /**
    * Log de error crítico de sync
    */
-  logSyncError(syncId: number, error: Error, context?: Record<string, any>) {
+  logSyncError(syncId: number, error: Error, context?: Record<string, unknown>) {
     this.winstonLogger.error(`❌ [SYNC-${syncId}] ${error.message}`, {
       context: 'RateSyncError',
       syncId,

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ItalcambiosScraper } from './italcambios.scraper';
 import axios from 'axios';
+import { ItalcambiosScraper } from './italcambios.scraper';
 
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;

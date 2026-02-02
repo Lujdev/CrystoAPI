@@ -55,7 +55,9 @@ export class BinanceScraper implements IScraper {
     });
 
     if (response.data?.code === '000000' && response.data?.data?.length > 0) {
-      const prices = response.data.data.map((ad: any) => parseFloat(ad.adv.price));
+      const prices = response.data.data.map((ad: { adv: { price: string } }) =>
+        parseFloat(ad.adv.price),
+      );
       // SIEMPRE tomamos el precio más alto (tanto para BUY como SELL)
       return Math.max(...prices);
     }

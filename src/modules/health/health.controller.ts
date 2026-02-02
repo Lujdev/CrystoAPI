@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
-import { HealthCheckService, TypeOrmHealthIndicator, HealthCheck } from '@nestjs/terminus';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { HealthCheck, HealthCheckService, TypeOrmHealthIndicator } from '@nestjs/terminus';
 
 @ApiTags('Health')
 @Controller('health')
@@ -14,8 +14,6 @@ export class HealthController {
   @HealthCheck()
   @ApiOperation({ summary: 'Verificar el estado de la API' })
   check() {
-    return this.health.check([
-      () => this.db.pingCheck('database'),
-    ]);
+    return this.health.check([() => this.db.pingCheck('database')]);
   }
 }
